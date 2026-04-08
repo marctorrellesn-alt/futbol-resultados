@@ -1,5 +1,5 @@
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 
 API_KEY = os.environ.get("API_FOOTBALL_KEY", "")
@@ -9,24 +9,27 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 HEADERS = {"x-apisports-key": API_KEY}
 
 LIGAS = [
-    {"id": 140, "nombre": "🇪🇸 LaLiga",                  "season": 2025},
-    {"id": 39,  "nombre": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League",         "season": 2025},
-    {"id": 135, "nombre": "🇮🇹 Serie A",                  "season": 2025},
-    {"id": 78,  "nombre": "🇩🇪 Bundesliga",               "season": 2025},
-    {"id": 61,  "nombre": "🇫🇷 Ligue 1",                  "season": 2025},
-    {"id": 141, "nombre": "🇪🇸 Segunda División",          "season": 2025},
-    {"id": 40,  "nombre": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Championship",            "season": 2025},
-    {"id": 2,   "nombre": "🏆 Champions League",           "season": 2025},
-    {"id": 3,   "nombre": "🟠 Europa League",              "season": 2025},
-    {"id": 848, "nombre": "🔵 Conference League",          "season": 2025},
-    {"id": 143, "nombre": "🥇 Copa del Rey",               "season": 2025},
-    {"id": 48,  "nombre": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Carabao Cup",             "season": 2025},
-    {"id": 45,  "nombre": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 FA Cup",                  "season": 2025},
-    {"id": 1,   "nombre": "🌍 Mundial",                    "season": 2026},
+    {"id": 140, "nombre": "🇪🇸 LaLiga",              "season": 2025},
+    {"id": 39,  "nombre": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League",     "season": 2025},
+    {"id": 135, "nombre": "🇮🇹 Serie A",              "season": 2025},
+    {"id": 78,  "nombre": "🇩🇪 Bundesliga",           "season": 2025},
+    {"id": 61,  "nombre": "🇫🇷 Ligue 1",              "season": 2025},
+    {"id": 141, "nombre": "🇪🇸 Segunda División",      "season": 2025},
+    {"id": 40,  "nombre": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Championship",        "season": 2025},
+    {"id": 2,   "nombre": "🏆 Champions League",       "season": 2025},
+    {"id": 3,   "nombre": "🟠 Europa League",          "season": 2025},
+    {"id": 848, "nombre": "🔵 Conference League",      "season": 2025},
+    {"id": 143, "nombre": "🥇 Copa del Rey",           "season": 2025},
+    {"id": 48,  "nombre": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Carabao Cup",         "season": 2025},
+    {"id": 45,  "nombre": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 FA Cup",              "season": 2025},
+    {"id": 1,   "nombre": "🌍 Mundial",                "season": 2026},
 ]
 
 def get_yesterday():
-    yesterday = datetime.now() - timedelta(days=1)
+    now_utc = datetime.now(timezone.utc)
+    offset = timedelta(hours=5)
+    now_local = now_utc - offset
+    yesterday = now_local - timedelta(days=1)
     return yesterday.strftime("%Y-%m-%d")
 
 def get_fixtures(league_id, season, date):
@@ -62,7 +65,11 @@ def send_telegram(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     if len(message) > 4096:
         message = message[:4090] + "\n..."
-    requests.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML"})
+    requests.post(url, json={
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "parse_mode": "HTML"
+    })
 
 def main():
     date = get_yesterday()
