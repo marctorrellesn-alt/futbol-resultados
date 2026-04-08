@@ -26,7 +26,7 @@ LIGAS = [
 ]
 
 def get_yesterday():
-    return "2025-04-08"
+    return "2026-04-07"
 
 def get_fixtures(league_id, season, date):
     url = "https://v3.football.api-sports.io/fixtures"
