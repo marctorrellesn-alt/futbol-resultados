@@ -26,11 +26,7 @@ LIGAS = [
 ]
 
 def get_yesterday():
-    now_utc = datetime.now(timezone.utc)
-    offset = timedelta(hours=5)
-    now_local = now_utc - offset
-    yesterday = now_local - timedelta(days=1)
-    return yesterday.strftime("%Y-%m-%d")
+    return "2025-04-07"
 
 def get_fixtures(league_id, season, date):
     url = "https://v3.football.api-sports.io/fixtures"
